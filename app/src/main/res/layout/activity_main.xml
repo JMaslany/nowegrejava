@@ -29,11 +29,12 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginVertical="10dp">
+
             <ImageView
                 android:id="@+id/img1"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                app:srcCompat="@drawable/Collarless_Icon"/>
+                app:srcCompat="@drawable/Collarless_Icon" />
             <ImageView
                 android:id="@+id/img2"
                 android:layout_width="100dp"
