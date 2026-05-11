@@ -1,9 +1,12 @@
 package com.example.myapplication;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +18,8 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
+    TextView timer;
+    Button btn;
     ImageView img1;
     ImageView img2;
     ImageView img3;
@@ -28,8 +33,14 @@ public class MainActivity extends AppCompatActivity {
     ImageView img11;
     ImageView img12;
 
+    Handler handler = new Handler();
+
+    boolean btnLock = true;
+
+    int counter = 0;
     int lastIndex = 0;
     int exposedTiles = 0;
+    int score = 0;
 
     int[] collar = {
             R.drawable.collarless_icon,
@@ -60,6 +71,13 @@ public class MainActivity extends AppCompatActivity {
     //in case i forget, these are supposed to be individual collar indices for corresponding image views.
     //so assignment[0] == 5 means its img1 and it points to collar[5], which is hunter.
 
+    boolean[] isTileExposed = {
+            false,false,false,
+            false,false,false,
+            false,false,false,
+            false,false,false,
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        initGame();
+        timer = findViewById(R.id.timer);
 
         img1 = findViewById(R.id.img1);
         img2 = findViewById(R.id.img2);
@@ -89,7 +107,8 @@ public class MainActivity extends AppCompatActivity {
         View.OnClickListener clickImg = new View.OnClickListener() {
             public void onClick(View v)
             {
-                GameUpdate(CheckImg(v));
+                if(!btnLock)
+                    GameUpdate(CheckImg(v));
             }
         };
 
@@ -106,14 +125,62 @@ public class MainActivity extends AppCompatActivity {
         img11.setOnClickListener(clickImg);
         img12.setOnClickListener(clickImg);
 
+        btn = findViewById(R.id.button);
+        btn.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v)
+            {
+                resetGame();
+                initGame();
+                initTimer();
+            }
+        });
     }
 
+    private void GameUpdate(int imgIndex)
+    {
+        if(!isTileExposed[imgIndex])
+        {
+            updateImg(imgIndex, collar[assignments[imgIndex]]);
+            isTileExposed[imgIndex] = true;
+            exposedTiles++;
+
+            if ((assignments[imgIndex] != assignments[lastIndex] || imgIndex == lastIndex) && exposedTiles == 2) {
+                btnLock = true;
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        isTileExposed[imgIndex] = false;
+                        isTileExposed[lastIndex] = false;
+                        updateImg(imgIndex, collar[0]);
+                        updateImg(lastIndex, collar[0]);
+                        lastIndex = imgIndex;
+                        exposedTiles = 0;
+                        btnLock = false;
+                    }
+                }, 500);
+
+            } else if (assignments[imgIndex] == assignments[lastIndex] && imgIndex != lastIndex && exposedTiles == 2) {
+                lastIndex = imgIndex;
+                exposedTiles = 0;
+                score++;
+            } else
+            {
+                lastIndex = imgIndex;
+            }
+        }
+    }
+    //
+    //----------------------------------------------------------------------
+    //
 
     //game initializer. it will randomize active collars and imageview assignments and probably act as a reset.
     private void initGame()
     {
         Random rand = new Random();
         int temp=0;
+        btnLock = false;
+
         //--- determines which collars to use as graphics.
         for (int i=0; i<activeCollars.length; i++)
         {
@@ -154,37 +221,66 @@ public class MainActivity extends AppCompatActivity {
         //---
     }
 
+    //---------------------------------------------------
 
-    //simple search function that android studio changed from a normal for statement.
-    private boolean arrContainsVal(int[] arr, int val)
+    private void resetGame()
     {
-        for (int j : arr) {
-            if (j == val)
-                return true;
-        }
-        return false;
+        isTileExposed = new boolean[] {
+                false,false,false,
+                false,false,false,
+                false,false,false,
+                false,false,false,
+        };
+
+        activeCollars = new int[] {0,0,0,0,0,0};
+        assignments = new int[] {
+                0,0,0,
+                0,0,0,
+                0,0,0,
+                0,0,0
+        };
+
+        timer.setText("Czas: 0:0");
+        counter = 0;
+        score = 0;
+        exposedTiles = 0;
+        lastIndex = 0;
+
+        img1.setImageResource(collar[0]);
+        img2.setImageResource(collar[0]);
+        img3.setImageResource(collar[0]);
+        img4.setImageResource(collar[0]);
+        img5.setImageResource(collar[0]);
+        img6.setImageResource(collar[0]);
+        img7.setImageResource(collar[0]);
+        img8.setImageResource(collar[0]);
+        img9.setImageResource(collar[0]);
+        img10.setImageResource(collar[0]);
+        img11.setImageResource(collar[0]);
+        img12.setImageResource(collar[0]);
     }
 
-    private void GameUpdate(int imgIndex)
+    //-------------------------------------------------
+
+    private void initTimer()
     {
-        updateImg(imgIndex, collar[assignments[imgIndex]]);
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(score<6)
+                {
+                    counter++;
+                    int mins = counter/60;
+                    int sec = counter%60;
+                    java.lang.String time = "Czas: " + mins + ":" + sec;
+                    timer.setText(time);
 
-        if(assignments[imgIndex] != assignments[lastIndex] && exposedTiles > 0)
-        {
-            updateImg(imgIndex, collar[0]);
-            updateImg(imgIndex, collar[0]);
-        }
-
-        if(exposedTiles>0)
-            exposedTiles=0;
-        else
-            exposedTiles++;
-
-        lastIndex = imgIndex;
+                    handler.postDelayed(this, 1000);
+                }
+            }
+        }, 1000);
     }
-    //
-    //----------------------------------------------------------------------
-    //
+
     private int CheckImg(View v)
     {
         if (v.equals(img1))
@@ -258,6 +354,15 @@ public class MainActivity extends AppCompatActivity {
             default:
                 break;
         }
+    }
+
+    private boolean arrContainsVal(int[] arr, int val)
+    {
+        for (int j : arr) {
+            if (j == val)
+                return true;
+        }
+        return false;
     }
 
 }
