@@ -1,6 +1,5 @@
 package com.example.myapplication;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +11,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.Arrays;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,21 +28,24 @@ public class MainActivity extends AppCompatActivity {
     ImageView img11;
     ImageView img12;
 
+    int lastIndex = 0;
+    int exposedTiles = 0;
+
     int[] collar = {
-            R.drawable.Collarless_Icon,
-            R.drawable.Butcher_Icon,
-            R.drawable.Cleric_Icon,
-            R.drawable.Druid_Icon,
-            R.drawable.Fighter_Icon,
-            R.drawable.Hunter_Icon,
-            R.drawable.Jester_Icon,
-            R.drawable.Mage_Icon,
-            R.drawable.Monk_Icon,
-            R.drawable.Necromancer_Icon,
-            R.drawable.Psychic_Icon,
-            R.drawable.Tank_Icon,
-            R.drawable.Thief_Icon,
-            R.drawable.Tinkerer_Icon
+            R.drawable.collarless_icon,
+            R.drawable.butcher_icon,
+            R.drawable.cleric_icon,
+            R.drawable.druid_icon,
+            R.drawable.fighter_icon,
+            R.drawable.hunter_icon,
+            R.drawable.jester_icon,
+            R.drawable.mage_icon,
+            R.drawable.monk_icon,
+            R.drawable.necromancer_icon,
+            R.drawable.psychic_icon,
+            R.drawable.tank_icon,
+            R.drawable.thief_icon,
+            R.drawable.tinkerer_icon
     };
 
     int[] activeCollars = {0,0,0,0,0,0};
@@ -70,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        initGame();
+
         img1 = findViewById(R.id.img1);
         img2 = findViewById(R.id.img2);
         img3 = findViewById(R.id.img3);
@@ -83,9 +86,26 @@ public class MainActivity extends AppCompatActivity {
         img11 = findViewById(R.id.img11);
         img12 = findViewById(R.id.img12);
 
-        View.OnClickListener click = new View.OnClickListener() {
-            public void onClick(View v) {}
+        View.OnClickListener clickImg = new View.OnClickListener() {
+            public void onClick(View v)
+            {
+                GameUpdate(CheckImg(v));
+            }
         };
+
+        img1.setOnClickListener(clickImg);
+        img2.setOnClickListener(clickImg);
+        img3.setOnClickListener(clickImg);
+        img4.setOnClickListener(clickImg);
+        img5.setOnClickListener(clickImg);
+        img6.setOnClickListener(clickImg);
+        img7.setOnClickListener(clickImg);
+        img8.setOnClickListener(clickImg);
+        img9.setOnClickListener(clickImg);
+        img10.setOnClickListener(clickImg);
+        img11.setOnClickListener(clickImg);
+        img12.setOnClickListener(clickImg);
+
     }
 
 
@@ -94,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
     {
         Random rand = new Random();
         int temp=0;
-
         //--- determines which collars to use as graphics.
         for (int i=0; i<activeCollars.length; i++)
         {
@@ -144,6 +163,101 @@ public class MainActivity extends AppCompatActivity {
                 return true;
         }
         return false;
+    }
+
+    private void GameUpdate(int imgIndex)
+    {
+        updateImg(imgIndex, collar[assignments[imgIndex]]);
+
+        if(assignments[imgIndex] != assignments[lastIndex] && exposedTiles > 0)
+        {
+            updateImg(imgIndex, collar[0]);
+            updateImg(imgIndex, collar[0]);
+        }
+
+        if(exposedTiles>0)
+            exposedTiles=0;
+        else
+            exposedTiles++;
+
+        lastIndex = imgIndex;
+    }
+    //
+    //----------------------------------------------------------------------
+    //
+    private int CheckImg(View v)
+    {
+        if (v.equals(img1))
+            return 0;
+        else if (v.equals(img2))
+            return 1;
+        else if (v.equals(img3))
+            return 2;
+        else if (v.equals(img4))
+            return 3;
+        else if (v.equals(img5))
+            return 4;
+        else if (v.equals(img6))
+            return 5;
+        else if (v.equals(img7))
+            return 6;
+        else if (v.equals(img8))
+            return 7;
+        else if (v.equals(img9))
+            return 8;
+        else if (v.equals(img10))
+            return 9;
+        else if (v.equals(img11))
+            return 10;
+        else if (v.equals(img12))
+            return 11;
+        else
+            return 0;
+    }
+
+    private void updateImg(int imgIndex, int img)
+    {
+        switch (imgIndex)
+        {
+            case 0:
+                img1.setImageResource(img);
+                break;
+            case 1:
+                img2.setImageResource(img);
+                break;
+            case 2:
+                img3.setImageResource(img);
+                break;
+            case 3:
+                img4.setImageResource(img);
+                break;
+            case 4:
+                img5.setImageResource(img);
+                break;
+            case 5:
+                img6.setImageResource(img);
+                break;
+            case 6:
+                img7.setImageResource(img);
+                break;
+            case 7:
+                img8.setImageResource(img);
+                break;
+            case 8:
+                img9.setImageResource(img);
+                break;
+            case 9:
+                img10.setImageResource(img);
+                break;
+            case 10:
+                img11.setImageResource(img);
+                break;
+            case 11:
+                img12.setImageResource(img);
+                break;
+            default:
+                break;
+        }
     }
 
 }
